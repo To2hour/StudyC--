@@ -166,10 +166,10 @@ public:
         }
         return;
       }
-     //不选
-     //对于两个相同的值，比如223。如果第一个2不选，那可以选择第二个2,可以出现23。
-     //而如果选择了第一个2，那第二个2必须选，否则会重复出现。
-      if(pre != nums[startIndex]){
+      //不选
+      //对于两个相同的值，比如223。如果第一个2不选，那可以选择第二个2,可以出现23。
+      //而如果选择了第一个2，那第二个2必须选，否则会重复出现。
+      if (pre != nums[startIndex]) {
         dfs(dfs, pre, startIndex + 1);
       }
       //选
@@ -179,9 +179,72 @@ public:
         dfs(dfs, nums[startIndex], startIndex + 1);
         path.pop_back();
       }
-       
     };
     dfs(dfs, INT_MIN, 0);
     return res;
   }
 };
+//全排列，无重复的那种
+class Solution7 {
+public:
+  vector<vector<int>> ans;
+  vector<int> path;
+
+  vector<vector<int>> permute(vector<int> &nums) {
+    vector<bool> used = vector<bool>(nums.size(), false);
+    auto dfs = [&](auto &&dfs) -> void {
+      if (path.size() == nums.size()) {
+        ans.push_back(path);
+        return;
+      }
+      for (int i = 0; i < nums.size(); i++) {
+        if (!used[i]) {
+          used[i] = true;
+          path.push_back(nums[i]);
+          dfs(dfs);
+          used[i] = false;
+          path.pop_back();
+        }
+      }
+    };
+    dfs(dfs);
+    return ans;
+  }
+};
+//全排列，有重复的那种
+class Solution8 {
+public:
+  vector<vector<int>> ans;
+  vector<int> path;
+  vector<vector<int>> permuteUnique(vector<int> &nums) {
+    vector<bool> used = vector<bool>(nums.size(), false);
+    sort(nums.begin(),nums.end());
+    auto dfs = [&](auto &&dfs) -> void {
+      if (path.size() == nums.size()) {
+        ans.push_back(path);
+        return;
+      }
+      for (int i = 0; i < nums.size(); i++) {
+        //当i>0，且上一个没有被用过的情况下，相等就跳过。
+        if (i > 0 && !used[i-1] && nums[i] == nums[i - 1]) {
+          continue;
+        }
+        if (!used[i]) {
+          used[i] = true;
+          path.push_back(nums[i]);
+          dfs(dfs);
+          used[i] = false;
+          path.pop_back();
+        }
+      }
+    };
+    dfs(dfs);
+    return ans;
+  }
+};
+int main() {
+  Solution8 *sol = new Solution8;
+  vector<int> nums{1, 1, 2};
+  sol->permuteUnique(nums);
+  return 0;
+}
