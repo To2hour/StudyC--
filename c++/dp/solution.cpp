@@ -209,9 +209,10 @@ public:
   }
 };
 // 01和
-// 没活的回溯写法
+
 class Solution9 {
 public:
+  // 没活的回溯写法
   int findTargetSumWays(vector<int> &nums, int target) {
     int res = 0;
     auto sum = [&](auto &&sum, int len, int amout) -> void {
@@ -227,4 +228,43 @@ public:
     sum(sum, 0, 0);
     return res;
   }
+  // 有活的dp写法
+  int findTargetSumWays1(vector<int> &nums, int target) {
+    // left + right=nums;
+    // left - right = target;
+    // left = (nums+target)/2|| nums + (target - nums) /
+    // 2。如果除不尽，说明不可能可以成，返回0。
+    // dp为容量为j的情况下，可以放多少的次数。
+    // dp[j] =
+    // (这一次不选他能放满的次数)dp[j]+(这一次选他能放满的次数)dp[j-nums[i]],需要dp[0]=1，否则没办法递增。
+    // 有点像走格子，当前格子的走法是从上面来+从左边来。
+    int amount = 0;
+    for (int n : nums) {
+      amount += n;
+    }
+    int left = amount + (target - amount) / 2;
+    if (2 * left != target) {
+      return 0;
+    }
+    vector<int> dp(left + 1, 0);
+    dp[0] = 1;
+    for (int i = 0; i < nums.size(); i++) {
+      for (int j = dp.size(); j >= nums[i]; j--) {
+        dp[j] += dp[j - nums[i]];
+      }
+    }
+    return dp.back();
+  }
 };
+//完全背包
+// class Solution10 {
+// public:
+//   int change(int amount, vector<int> &coins) {
+//     vector<int> dp(amount + 1, 0);
+//     for (int i = 0; i < coins.size(); i++) {
+//       for (int j = coins[i]; j < dp.size(); j++) {
+//         dp[j] += dp[j - coins[i]];
+//       }
+//     }
+//   }
+// };
