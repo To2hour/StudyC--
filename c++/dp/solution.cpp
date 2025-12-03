@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <climits>
 #include <cstddef>
+#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <math.h>
@@ -257,15 +258,132 @@ public:
     return dp.back();
   }
 };
-//完全背包
-// class Solution10 {
-// public:
-//   int change(int amount, vector<int> &coins) {
-//     vector<int> dp(amount + 1, 0);
-//     for (int i = 0; i < coins.size(); i++) {
-//       for (int j = coins[i]; j < dp.size(); j++) {
-//         dp[j] += dp[j - coins[i]];
-//       }
-//     }
-//   }
-// };
+// 完全背包
+class Solution10 {
+public:
+  int change(int amount, vector<int> &coins) {
+    vector<int> dp(amount + 1, 0);
+    dp[0] = 1;
+    for (int i = 0; i < coins.size(); i++) {
+      for (int j = coins[i]; j < dp.size(); j++) {
+        dp[j] += dp[j - coins[i]];
+      }
+    }
+    return dp.back();
+  }
+};
+
+class Solution11_Combination {
+public:
+  int change(int amount, vector<int> &coins) {
+    vector<int> dp(amount + 1, 0);
+    dp[0] = 1;
+
+    cout << "\n---- 组合版(不考虑顺序) DP变化 ----\n";
+    for (int i = 0; i < coins.size(); i++) {
+      for (int j = coins[i]; j <= amount; j++) {
+        dp[j] += dp[j - coins[i]];
+      }
+
+      // 打印每轮硬币后的 dp
+      cout << "使用硬币 " << coins[i] << " 后: ";
+      for (auto v : dp)
+        cout << setw(3) << v << " ";
+      cout << endl;
+    }
+
+    return dp[amount];
+  }
+};
+
+class Solution11_Permutation {
+public:
+  int change(int amount, vector<int> &coins) {
+    vector<int> dp(amount + 1, 0);
+    dp[0] = 1;
+    cout << "\n---- 排列版本DP变化 ----\n";
+    for (int j = 1; j <= amount; j++) {
+      for (int i = 0; i < coins.size(); i++) {
+        if (j >= coins[i]) {
+          //不选coins为dp[j]，选当前硬币为dp[j-coins[i]],如果容量小于当前硬币，那就选不了当前硬币。
+          //至于排列问题。当容量=3的时候，我先选第0个，值是1。这样就是dp[3]=dp[2]，里面选的1和dp[2]的值，是{1,1,1},{1,2}
+          // 然后我选第1个数字，值是2.我dp[3]此时不选2，是前面的{1,1,1},{1,2}，选2，就得加上dp[1]，dp[1]={1}，所以这个时候
+          //的dp[3]就是{2,1}，最后加起来就是{1,1,1},{1,2},{2,1}
+          dp[j] = dp[j] + dp[j - coins[i]];
+        } /*所以为了方便理解，其实还可以加*/ else {
+          dp[j] = dp[j];
+        }
+      }
+      for (auto v : dp)
+        cout << setw(3) << v << " ";
+      cout << endl;
+    }
+
+    return dp[amount];
+  }
+};
+//组合总数4
+class Solution12 {
+public:
+  int combinationSum4(vector<int> &nums, int target) {
+    vector<int> dp(target + 1, 0);
+    dp[0] = 1;
+    for (int i = 1; i <= target; i++) {
+      for (int j = 0; j < nums.size(); j++) {
+        if (i >= nums[j]) {
+          dp[i] += dp[i - nums[j]];
+        }
+      }
+    }
+    return dp.back();
+  }
+};
+// 超级爬楼梯，n个楼梯，1次可以爬m层
+class Solution13 {
+public:
+  int climbStairs(int n, int m) {
+    vector<int> dp(n + 1, 0);
+    dp[0] = 1;
+    for (int i = 1; i <= n; i++) {
+      for (int j = 1; j <= m; j++) {
+        if (i >= j) {
+          //不选爬j层能到达i层的次数+选择爬j层到底i层的次数
+          dp[i] += dp[i - j];
+        }
+      }
+    }
+    return dp.back();
+  }
+};
+
+//零钱兑换
+class Solution14 {
+public:
+  int coinChange(vector<int> &coins, int amount) {
+    vector<int> dp(amount + 1, 0);
+    dp[0] = 0;
+    for (int i = 0; i < coins.size(); i++) {
+      for (int j = coins[i]; j <= amount; j++) {
+        dp[j] = min(dp[j - coins[i]] + 1, dp[j]);
+      }
+    }
+    return dp.back() == 0 ? -1 : dp.back();
+  }
+};
+int main() {
+  vector<int> coins = {1, 2};
+  int amount = 3;
+
+  Solution11_Combination s1;
+  Solution11_Permutation s2;
+
+  cout << "coins = {1, 2}, amount = " << amount << endl;
+
+  int res1 = s1.change(amount, coins);
+  cout << "\n组合结果 = " << res1 << "（顺序不重要，例如 1+2 和 2+1 算一种）\n";
+
+  int res2 = s2.change(amount, coins);
+  cout << "\n排列结果 = " << res2 << "（顺序重要，例如 1+2 和 2+1 算两种）\n";
+
+  return 0;
+}
