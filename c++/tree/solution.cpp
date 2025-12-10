@@ -45,22 +45,42 @@ public:
     int res = 0;
     return dfs(dfs, root, res);
   };
-  bool hasPathSum(TreeNode *root, int targetSum){
-      auto dfs = [&](auto &&dfs, TreeNode *node, int res) -> bool {
-        if (!node) {
+  bool hasPathSum(TreeNode *root, int targetSum) {
+    auto dfs = [&](auto &&dfs, TreeNode *node, int res) -> bool {
+      if (!node) {
+        return false;
+      }
+      if (!node->left && !node->right) {
+        res += node->val;
+        if (res == targetSum) {
+          return true;
+        } else {
           return false;
         }
-        if (!node->left && !node->right) {
-          res += node->val;
-          if (res == targetSum) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-        dfs(dfs, node->left, res + node->val);
-        dfs(dfs, node->right, res + node->val);
-      };
-      return dfs(dfs, root,0);
+      }
+      dfs(dfs, node->left, res + node->val);
+      dfs(dfs, node->right, res + node->val);
     };
+    return dfs(dfs, root, 0);
+  };
+
+  int rob(TreeNode *root) {
+    vector<pair<int, int>> dp;
+    auto dfs = [&](auto &&dfs, TreeNode *node) -> vector<pair<int, int>> {
+      if (node == nullptr) {
+        return vector<pair<int, int>>{{0, 0}};
+      }
+      vector<pair<int, int>> left = dfs(node->left);
+      vector<pair<int, int>> right = dfs(node->right);
+      //偷当前的
+      int rob = node->val + left.front().first + right.front().first;
+      //不偷当前的
+      int nonrob = max(left.front().first, left.front().second) +
+                   max(right.front().first, right.front().second);
+      return vector<pair<int, int>>{{rob, nonrob}};
+      ;
+    };
+    dfs(root);
+    return max(dp.front().first,dp.front().second);
+  }
 };
