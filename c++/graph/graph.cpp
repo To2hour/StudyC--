@@ -9,6 +9,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 using namespace std;
 //邻接矩阵版本
@@ -188,7 +189,46 @@ int main() {
     que.pop();
     for (auto j = 0; j < b->adjMat.at(i).size(); j++) {
       que.push(b->adjMat.at(i)[j]);
-      
     }
   }
 }
+
+class prim {
+public:
+  void prime(vector<vector<pair<int, int>>> &graph) {
+    vector<int> dist(graph.size(), INT_MAX);
+    vector<int> parent(graph.size(), -1);
+    vector<pair<int, int>> path;
+    vector<bool> visit(graph.size(), false);
+    auto prim = [&](auto &&prim, int i) -> void {
+      if (visit[i]) {
+        return;
+      }
+      visit[i] = true;
+      for (const auto &[v, cost] : graph[i]) {
+        if (!visit[v]) {
+          if (cost <= dist[v]) {
+            parent[v] = i;
+            dist[v] = cost;
+          }
+        }
+      }
+      int next = INT_MAX;
+      int index = -1;
+      for (int i = 0; i < dist.size(); i++) {
+        if (!visit[i] && dist[i] < next) { // ✅ 只在未访问节点中选
+          next = dist[i];
+          index = i;
+        }
+      }
+      if (next == INT_MAX) {
+        return;
+      }
+      if (parent[index] != -1) {
+        path.push_back({parent[index], index});
+      }
+      cout << "花费" << next << endl;
+      prim(prim, index);
+    }
+  }
+};
